@@ -163,13 +163,8 @@ def get_n_k_surrounded_by_air_and_pec(materials, frequencies):
     # Air as the first layer
     assert jnp.all(jnp.real(n_k[0]) == 1)
     assert jnp.all(jnp.imag(n_k[0]) == 0)
-
-    for ind, material in enumerate(materials):
-        n_material, k_material = interpolate_material(material, frequencies)
-        n_k = n_k.at[ind + 1, :].set(n_material + 1j * k_material)
-
-    # PEC as the last layer: n = 0 (real part), k = very large (imaginary part)
-    n_k = n_k.at[-1, :].set(0 + 1j * 1e10)
+    assert jnp.all(jnp.real(n_k[-1]) == 0)
+    assert jnp.all(jnp.imag(n_k[-1]) == 1e10)
 
     n_k = n_k.T
     return n_k
