@@ -40,6 +40,22 @@ LIST_MATERIALS = [
     "W",
     "ZnO",
     "Zn",
+    "Mat1",
+    "Mat2",
+    "Mat3",
+    "Mat4",
+    "Mat5",
+    "Mat6",
+    "Mat7",
+    "Mat8",
+    "Mat9",
+    "Mat10",
+    "Mat11",
+    "Mat12",
+    "Mat13",
+    "Mat14",
+    "Mat15",
+    "Mat16"
 ]
 
 
