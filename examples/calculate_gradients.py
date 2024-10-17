@@ -11,8 +11,9 @@ from jaxlayerlumos.utils_layers import (
 
 
 if __name__ == "__main__":
-    frequencies = get_frequencies_visible_light()
-    materials = ["TiO2", "Ag", "TiO2"]
+    #frequencies = get_frequencies_visible_light() #Uncomment if want to use original materials
+    frequencies = jnp.arange(1e9, 1e10, 0.01e9)
+    materials = ["Mat1", "Mat10", "Mat16"]
     thicknesses = jnp.array([20.0, 5.0, 30.0])
     angles = jnp.array([0.0, 45.0, 75.0, 89.0])
 
