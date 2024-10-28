@@ -155,16 +155,24 @@ def get_n_k_surrounded_by_air_and_pec(materials, frequencies):
     assert isinstance(frequencies, jnp.ndarray)
     assert frequencies.ndim == 1
 
-    num_layers = len(materials) + 2  # Adding air and PEC as layers
+    # Number of layers includes the air and PEC boundaries
+    num_layers = len(materials) + 2  # Air + materials + PEC
     num_frequencies = frequencies.shape[0]
 
+    # Initialize refractive index array with air as the first layer and PEC as the last
     n_k = jnp.ones((num_layers, num_frequencies), dtype=jnp.complex128)
 
-    # Air as the first layer
-    assert jnp.all(jnp.real(n_k[0]) == 1)
-    assert jnp.all(jnp.imag(n_k[0]) == 0)
-    assert jnp.all(jnp.real(n_k[-1]) == 0)
-    assert jnp.all(jnp.imag(n_k[-1]) == 1e10)
+    # Set refractive indices for material layers
+    for ind, material in enumerate(materials):
+        n_material, k_material = interpolate_material(material, frequencies)
+        n_k = n_k.at[ind + 1, :].set(n_material + 1j * k_material)
+
+    # Set air as the first layer
+    n_k = n_k.at[0, :].set(1.0 + 0.0j)
+
+    # Set PEC as the last layer with a very high imaginary value to represent perfect conductivity
+    n_k = n_k.at[-1, :].set(0.0 + 1e10j)
 
     n_k = n_k.T
     return n_k
+
