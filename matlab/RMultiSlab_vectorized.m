@@ -1,4 +1,4 @@
-function [rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab_vectorized(M, Theta_inc, epsr, mur, f, d)
+function [rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab_vectorized(M, Theta_inc, epsr, mur, f, d, backLayer)
 % Calculates the reflection coefficients for TE and TM polarization
 % from a multilayer slab structure.
 %
@@ -13,6 +13,10 @@ function [rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab_vectorized(M, Theta_inc, epsr
 % Outputs:
 % rSlab_TE_abs - Absolute value squared of the total reflection coefficient for TE polarization
 % rSlab_TM_abs - Absolute value squared of the total reflection coefficient for TM polarization
+
+if nargin == 6
+  backLayer = 'PEC';
+end
 
 % Convert frequency from GHz to Hz
 f = f * 1e9;
@@ -75,8 +79,17 @@ end
 
 % Initial values for total reflection coefficients (rSlab_TE and rSlab_TM)
 % -1 indicates a Perfect Electric Conductor (PEC) boundary condition
-rSlab_TE(1, :) = -1*ones(length(f), 1); % TE polarization
-rSlab_TM(1, :) = -1*ones(length(f), 1); % TM polarization
+switch(backLayer)
+  case('PEC')
+    rSlab_TE(1, :) = -1*ones(length(f), 1); % TE polarization
+    rSlab_TM(1, :) = -1*ones(length(f), 1); % TM polarization
+  case('air')
+    rSlab_TE(1,:) = rFresnel(1)*ones(length(f), 1); % initial value for rSlab_TE
+    rSlab_TM(1,:) = rFresnelH(1)*ones(length(f), 1); % initial value for rSlab_TM
+  otherwise
+    error('back layer must be PEC or air')
+end
+
 
 % Calculate total reflection coefficients for TE and TM polarizations
 for i = 2:M+1
