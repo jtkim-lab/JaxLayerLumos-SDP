@@ -155,3 +155,8 @@ cython_debug/
 .DS_Store
 __MACOSX/
 *.swp
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/JaxLayerLumos-SDP.iml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/workspace.xml
