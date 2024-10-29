@@ -108,9 +108,7 @@ def interpolate(freqs_values, frequencies):
     values_interpolated = jnp.interp(
         frequencies,
         freqs,
-        values,
-        left="extrapolate",
-        right="extrapolate",
+        values
     )
 
     return values_interpolated
