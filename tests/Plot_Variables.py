@@ -12,8 +12,11 @@ from jaxlayerlumos.utils_layers import (
 if __name__ == "__main__":
     # Define frequency range (0.1 GHz to 1 GHz)
     frequencies = jnp.arange(0.1e9, 1.01e9, 0.01e9)  # Frequencies from 0.1 GHz to 1 GHz
-    materials = ["Mat11", "Mat16", "Mat7", "Mat4", "Mat4"]  # Material list
-    thicknesses = jnp.array([0.7742, 0.8485, 1.4878, 1.9883, 1.9863])  # Thickness in mm
+    materials = ["Mat1", "Mat2", "Mat6", "Mat7", "Mat8"]  # Material list
+    #materials = ["Mat16", "Mat6", "Mat5", "Mat11", "Mat2"]  # Material list
+    #materials = ["Mat11", "Mat16", "Mat7", "Mat4", "Mat4"] # Material list
+    thicknesses = jnp.array([1.155, 0.885, 1.272, 1.446, 0.486])  # Thickness in mm
+    #thicknesses = jnp.array([2.0])  # Thickness in mm
     angles = 0.0  # Incident angles in degrees
     #angles = jnp.array([0.0, 45.0, 75.0, 89.0])  # Incident angles in degrees
 
@@ -39,7 +42,7 @@ if __name__ == "__main__":
     plt.semilogx(frequencies * 1e-9, R_TE_db, label="Reflectance (TE) in dB")  # Convert frequencies to GHz for x-axis
     plt.xlabel("Frequency (GHz)")
     plt.ylabel("Reflectance (dB)")
-    plt.title("Reflectance vs Frequency for Multi-layered Material")
+    plt.title("Reflectance vs Frequency")
     plt.legend()
     plt.grid(True)
     plt.show()

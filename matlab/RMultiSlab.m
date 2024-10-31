@@ -46,8 +46,8 @@ end
 
 %Calculate rFresnel for E and rFresnelH for H
 for i = 1:M+1
-    rFresnel(i) = (mu(i)*kz(i+1)-mu(i+1)*kz(i))/(mu(i)*kz(i+1)+mu(i+1)*kz(i));
-    rFresnelH(i) = (kz(i)*eps(i+1)-kz(i+1)*eps(i))/(kz(i)*eps(i+1)+kz(i+1)*eps(i));
+  rFresnel(i) = (mu(i)*kz(i+1)-mu(i+1)*kz(i))/(mu(i)*kz(i+1)+mu(i+1)*kz(i));
+  rFresnelH(i) = (kz(i)*eps(i+1)-kz(i+1)*eps(i))/(kz(i)*eps(i+1)+kz(i+1)*eps(i));
 end
 
 %Calculate rFresnel^2 and rFresnelH^2
@@ -61,8 +61,9 @@ rFresnelH_abs = (abs(rFresnelH)).^2;
    
 %Calculate rSlab_TE for E and rSlab_TM for H
 for i = 2:M+1
-    rSlab_TE(i) = (rFresnel(i)+rSlab_TE(i-1)*exp(-2j*kz(i)*d(i-1)))/(1+rFresnel(i)*rSlab_TE(i-1)*exp(-2j*kz(i)*d(i-1)));
-    rSlab_TM(i) = (rFresnelH(i)+rSlab_TM(i-1)*exp(-2j*kz(i)*d(i-1)))/(1+rFresnelH(i)*rSlab_TM(i-1)*exp(-2j*kz(i)*d(i-1)));
+  -2j*kz(i)*d(i-1)
+  rSlab_TE(i) = (rFresnel(i)+rSlab_TE(i-1)*exp(-2j*kz(i)*d(i-1)))/(1+rFresnel(i)*rSlab_TE(i-1)*exp(-2j*kz(i)*d(i-1)));
+  rSlab_TM(i) = (rFresnelH(i)+rSlab_TM(i-1)*exp(-2j*kz(i)*d(i-1)))/(1+rFresnelH(i)*rSlab_TM(i-1)*exp(-2j*kz(i)*d(i-1)));
 end
 
 %Calculate rSlab_TE^2 and rSlab_TM^2

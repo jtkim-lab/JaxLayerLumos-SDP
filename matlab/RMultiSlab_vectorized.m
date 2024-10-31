@@ -32,6 +32,8 @@ mu = mur * u0;   % Absolute permeability for each slab
 % Convert slab thickness from mm to m
 d = d * 1e-3;
 
+%d = [0 d 0];
+
 % Convert the incidence angle from degrees to radians
 Theta_inc = Theta_inc * pi / 180;
 
@@ -66,12 +68,13 @@ end
 kz = k.*sqrt(1 - sinTh.^2);
 
 rFresnel = zeros(M+1,length(f));
-rFresnelH = zeros(M+1,length(f))
+rFresnelH = zeros(M+1,length(f));
 % Calculate Fresnel reflection coefficients for TE (rFresnel) and TM (rFresnelH)
 for i = 1:M+1
   rFresnel(i,:) = (mu(i,:) .* kz(i+1,:) - mu(i+1,:) .* kz(i,:)) ./ (mu(i,:) .* kz(i+1,:) + mu(i+1,:) .* kz(i,:)); % TE reflection coefficient
   rFresnelH(i,:) = (kz(i,:) .* eps(i+1,:) - kz(i+1,:) .* eps(i,:)) ./ (kz(i,:) .* eps(i+1,:) + kz(i+1,:) .* eps(i,:)); % TM reflection coefficient
 end
+
 
 % Calculate the absolute value squared of Fresnel reflection coefficients
 % rFresnel_abs = abs(rFresnel).^2;
