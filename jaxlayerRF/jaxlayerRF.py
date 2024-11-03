@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 
-def calculate_reflection_coefficients(Theta_inc, epsr, mur, f, d, backing_code):
+def calculate_reflection_coefficients(Theta_inc, epsr, mur, f, d):
     """
     Calculates the reflection coefficients for TE and TM polarization
     from a multilayer slab structure using JAX for automatic differentiation.
@@ -11,7 +11,6 @@ def calculate_reflection_coefficients(Theta_inc, epsr, mur, f, d, backing_code):
     mur (array): Relative permeability array for each slab (shape: [M+2, Nf])
     f (array): Frequency array (Hz)
     d (array): Thickness of each slab (m), length M
-    backing_code (int): Numeric code for backing layer (0 for PEC, 1 for air)
 
     Returns:
     rSlab_TE_abs (array): Absolute value squared of the total reflection coefficient for TE polarization
@@ -69,9 +68,13 @@ def calculate_reflection_coefficients(Theta_inc, epsr, mur, f, d, backing_code):
     rSlab_TE = jnp.zeros((M + 1, Nf), dtype=eps.dtype)
     rSlab_TM = jnp.zeros((M + 1, Nf), dtype=eps.dtype)
     
-    # Compute initial reflection coefficients based on backing_code
-    r_back_TE = jnp.where(backing_code == 0, -1.0, rFresnel[0, :])
-    r_back_TM = jnp.where(backing_code == 0, -1.0, rFresnelH[0, :])
+    # Determine if the backing layer is PEC by checking its epsr and mur
+    threshold = 1e10  # Adjust this threshold if necessary
+    is_PEC_backing = (jnp.abs(epsr[-1, :]) > threshold) & (jnp.abs(mur[-1, :]) > threshold)
+    
+    # Compute initial reflection coefficients based on backing properties
+    r_back_TE = jnp.where(is_PEC_backing, -1.0 + 0j, rFresnel[0, :])
+    r_back_TM = jnp.where(is_PEC_backing, -1.0 + 0j, rFresnelH[0, :])
     
     rSlab_TE = rSlab_TE.at[0, :].set(r_back_TE)
     rSlab_TM = rSlab_TM.at[0, :].set(r_back_TM)

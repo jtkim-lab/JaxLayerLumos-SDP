@@ -1,9 +1,12 @@
+# utils.py
 import jax.numpy as jnp
 
 def initialize_epsr_mur(materialInd, f_GHz):
     """
     Initializes the relative permittivity (epsr) and permeability (mur)
     for the given material indices over the frequency range f_GHz using JAX.
+
+    Returns only the material layers without adding the incident medium or backing layer.
     """
     # Ensure f_GHz is a JAX array
     f_GHz = jnp.array(f_GHz)
@@ -59,8 +62,47 @@ def initialize_epsr_mur(materialInd, f_GHz):
     epsr_layers = M_epsr[material_indices, :]
     mur_layers = M_mur[material_indices, :]
 
-    # Add air layer at the beginning (incident medium)
-    epsr = jnp.vstack([jnp.ones((1, Nf), dtype=complex), epsr_layers])
-    mur = jnp.vstack([jnp.ones((1, Nf), dtype=complex), mur_layers])
+    return epsr_layers, mur_layers
+
+def add_incident_and_backing_layers(epsr_layers, mur_layers, f_GHz, incident_medium='air', backing_material='PEC'):
+    """
+    Adds the incident medium (front layer) and backing layer to epsr and mur arrays.
+
+    Parameters:
+    epsr_layers (array): Relative permittivity of material layers (shape: [M, Nf]).
+    mur_layers (array): Relative permeability of material layers (shape: [M, Nf]).
+    f_GHz (array): Frequency array in GHz.
+    incident_medium (str): Type of incident medium ('air' or other).
+    backing_material (str): Type of backing material ('PEC' or 'air').
+
+    Returns:
+    epsr (array): Updated epsr array including incident and backing layers (shape: [M+2, Nf]).
+    mur (array): Updated mur array including incident and backing layers (shape: [M+2, Nf]).
+    """
+    Nf = f_GHz.size
+
+    # Incident medium
+    if incident_medium.lower() == 'air':
+        epsr_incident = jnp.ones((1, Nf), dtype=complex)
+        mur_incident = jnp.ones((1, Nf), dtype=complex)
+    else:
+        # Define other incident media if needed
+        raise ValueError("Unsupported incident medium.")
+
+    # Backing material
+    if backing_material.lower() == 'pec':
+        # For PEC, use a very large number to simulate infinite permittivity and permeability
+        epsr_backing = jnp.full((1, Nf), 1e20 + 0j)
+        mur_backing = jnp.full((1, Nf), 1e20 + 0j)
+    elif backing_material.lower() == 'air':
+        epsr_backing = jnp.ones((1, Nf), dtype=complex)
+        mur_backing = jnp.ones((1, Nf), dtype=complex)
+    else:
+        # Define other backing materials if needed
+        raise ValueError("Unsupported backing material.")
+
+    # Combine all layers
+    epsr = jnp.vstack([epsr_incident, epsr_layers, epsr_backing])
+    mur = jnp.vstack([mur_incident, mur_layers, mur_backing])
 
     return epsr, mur
