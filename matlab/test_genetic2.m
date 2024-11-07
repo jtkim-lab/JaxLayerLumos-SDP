@@ -160,5 +160,19 @@ fprintf('Best Fitness: %.4f\n', -maxValue);
 
 fprintf('Total Thicknesses: %.4f\n', sum(bestStructure(1:numLayers)));
 
-%3.7153 mm, 1.8364 mm, 0.9869 mm
+thickness = bestStructure(1:numLayers);
+mat_selection = bestStructure(numLayers+1:2*numLayers);
+
+%thickness = [3.8499 1.2553 1.0716];
+%mat_selection =[4, 7, 15];
+%thickness = [3.7153 1.8364 0.9869];
+%mat_selction = [4 6 15];
 %Best Materials: 4, 6, 15
+[epsr, mur, M_epsr, M_mur] = initialize_epsr_mur(mat_selection, f);
+
+[rSlab_TE_abs, ~] = RMultiSlab_vectorized(numLayers, theta_inc, epsr, mur, f, thickness, backLayer);
+reflectionBest = rSlab_TE_abs(numLayers+1,:); % Reflection for three layers plus air
+
+figure(2);
+clf;
+plot(f, 10 * log10(reflectionBest));
