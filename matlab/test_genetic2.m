@@ -1,0 +1,164 @@
+% Genetic Algorithm to Minimize Reflection for Three-Layer Configuration 
+clear all
+close all
+clc
+
+% Parameters
+numGenerations = 50; % Number of generations
+popSize = 100; % Population size
+mutationRate = 0.1; % Mutation rate
+
+k = 2; %tournament size
+numParents = popSize;
+
+% Frequency range in GHz (from 0.1 to 1 GHz in steps of 0.01 GHz)
+f = 0.1:0.01:1; 
+numFrequencies = length(f);
+f_Hz = f * 1e9; % Frequency in Hz
+
+% Speed of light in m/s
+c = 3e8;
+
+% Wavelength in meters
+wavelength = c ./ f_Hz;
+
+% Boundaries for thicknesses of layers [in mm]
+minThickness = 0.1; % Minimum thickness (mm)
+maxThickness = 5;   % Maximum thickness (mm)
+
+numLayers = 3;
+numMaterials = 16;
+
+% Material options for each layer (indices corresponding to material properties in M_epsr and M_mur)
+
+theta_inc = 0;
+% Generate initial population (random selection of thickness and material index)
+population = zeros(popSize, 2*numLayers, numGenerations);
+population(:,:,1) = [rand(popSize, numLayers) * (maxThickness - minThickness) + minThickness, ...
+              randi(numMaterials, popSize, numLayers)];
+
+fitness = zeros(popSize, numGenerations);
+
+backLayer = 'PEC';
+% Main loop for genetic algorithm
+for gen = 1:numGenerations
+    reflection = zeros(popSize, numFrequencies);
+    % Evaluate the fitness of each individual
+    for i = 1:popSize
+        thickness = population(i, 1:numLayers,gen);
+        mat_selection = population(i, numLayers+1:2*numLayers,gen);
+        [epsr, mur, M_epsr, M_mur] = initialize_epsr_mur(mat_selection, f);
+     
+        [rSlab_TE_abs, ~] = RMultiSlab_vectorized(numLayers, theta_inc, epsr, mur, f, thickness, backLayer);
+        reflection(i,:) = rSlab_TE_abs(numLayers+1,:); % Reflection for three layers plus air
+    end
+    fitness(:, gen) = min(abs(10 * log10(reflection)), [], 2); 
+    
+    % Output current generation and fitness
+    fprintf('Generation %d:\n', gen);
+    for i = 1:popSize
+      thicknessFormat = repmat('%.4f, ', 1, numLayers); % Create format for thicknesses
+      thicknessFormat = thicknessFormat(1:end-2); % Remove the last comma and space
+      materialFormat = repmat('%d, ', 1, numLayers); % Create format for materials
+      materialFormat = materialFormat(1:end-2); % Remove the last comma and space
+
+      formatSpec = ['  Individual %d: Thicknesses = [', thicknessFormat, ...
+        '] mm, Materials = [', materialFormat, '], Fitness = %.4f\n'];
+
+      % Use the combined format string in fprintf
+      fprintf(formatSpec, i, ...
+        population(i, 1:numLayers, gen), ...               % Thicknesses
+        population(i, numLayers+1:2*numLayers, gen), ...   % Materials
+        fitness(i, gen));                                 % Fitness
+    end
+    
+    % Selection (tournament selection)
+    parents = zeros(numParents, numLayers*2);
+    for i = 1:numParents
+      % Step 1: Randomly select `k` individuals for the tournament
+      tournamentIdx = randi(popSize, [k, 1]);
+
+      % Step 2: Find the individual with the best fitness in the tournament
+      [~, bestIdx] = max(fitness(tournamentIdx,gen)); % Use max if higher fitness is better
+
+      % Step 3: Add the best individual from the tournament to the selected parents
+      parents(i, :) = population(tournamentIdx(bestIdx), :, gen);
+    end
+
+
+    % best are at the end
+    %[~, sortedIdx] = sort(fitness);
+    %population = population(sortedIdx, :);
+    
+    if gen < numGenerations 
+      % Crossover (single-point crossover)
+      % Do crossover on types
+      for i = 1:2:popSize
+        idx1 = randi(numParents);
+        idx2 = randi(numParents);
+
+        % Separate continuous and integer parts
+        continuousPart1 = parents(idx1, 1:numLayers); % Continuous part of parent 1
+        continuousPart2 = parents(idx2, 1:numLayers); % Continuous part of parent 2
+        integerPart1 = parents(idx1, numLayers+1:end); % Integer part of parent 1
+        integerPart2 = parents(idx2, numLayers+1:end); % Integer part of parent 2
+
+        % Apply crossover to continuous part
+        crossoverPointCont = randi([1, numLayers-1]);
+        child1_continuous = [continuousPart1(1:crossoverPointCont), continuousPart2(crossoverPointCont+1:end)];
+        child2_continuous = [continuousPart2(1:crossoverPointCont), continuousPart1(crossoverPointCont+1:end)];
+
+        % Apply crossover to integer part
+        crossoverPointInt = randi([1, numLayers-1]);
+        child1_integer = [integerPart1(1:crossoverPointInt), integerPart2(crossoverPointInt+1:end)];
+        child2_integer = [integerPart2(1:crossoverPointInt), integerPart1(crossoverPointInt+1:end)];
+
+        % Combine continuous and integer parts to form new offspring
+        population(i, :, gen+1) = [child1_continuous, child1_integer];
+
+        if i+1 <= popSize
+          population(i+1, :, gen+1) = [child2_continuous, child2_integer];
+        end
+      end
+
+      % Mutation (random mutation based on mutation rate)
+      for i = 1:popSize
+        if rand < mutationRate
+          mutationPoint = randi(numLayers*2);
+          if mutationPoint <= numLayers
+            population(i, mutationPoint, gen+1) = rand * (maxThickness - minThickness) + minThickness;
+          else
+            population(i, mutationPoint,gen+1) = randi(numMaterials);
+          end
+        end
+      end
+    end
+end
+
+figure(1);
+clf;
+plot(1:numGenerations, -max(fitness, [], 1), '-o');
+hold on;
+plot(1:numGenerations, -mean(fitness, 1), 'r-x');
+legend('best', 'mean');
+xlabel('Generation')
+ylabel('Fitness Function')
+
+[maxValue, linearIndex] = max(fitness(:));
+[row, col] = ind2sub(size(fitness), linearIndex);
+bestStructure = population(row,:,col);
+
+thicknessFormat = repmat('%.4f mm, ', 1, numLayers);
+thicknessFormat = thicknessFormat(1:end-2); % Remove trailing comma and space
+
+materialFormat = repmat('%d, ', 1, numLayers);
+materialFormat = materialFormat(1:end-2); % Remove trailing comma and space
+% Print best thicknesses, materials, and fitness with dynamically created format strings
+fprintf(['Best Thicknesses: ', thicknessFormat, '\n'], bestStructure(1:numLayers));
+fprintf(['Best Materials: ', materialFormat, '\n'], bestStructure(numLayers+1:2*numLayers));
+fprintf('Best Fitness: %.4f\n', -maxValue);
+
+fprintf('Total Thicknesses: %.4f\n', sum(bestStructure(1:numLayers)));
+
+%3.7153 mm, 1.8364 mm, 0.9869 mm
+%Best Materials: 4, 6, 15
