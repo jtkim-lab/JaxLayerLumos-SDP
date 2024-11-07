@@ -26,7 +26,7 @@ wavelength = c ./ f_Hz;
 minThickness = 0.1; % Minimum thickness (mm)
 maxThickness = 5;   % Maximum thickness (mm)
 
-numLayers = 3;
+numLayers = 4;
 numMaterials = 16;
 
 % Material options for each layer (indices corresponding to material properties in M_epsr and M_mur)
@@ -109,7 +109,7 @@ for gen = 1:numGenerations
         child2_continuous = [continuousPart2(1:crossoverPointCont), continuousPart1(crossoverPointCont+1:end)];
 
         % Apply crossover to integer part
-        crossoverPointInt = randi([1, numLayers-1]);
+        crossoverPointInt = crossoverPointCont;
         child1_integer = [integerPart1(1:crossoverPointInt), integerPart2(crossoverPointInt+1:end)];
         child2_integer = [integerPart2(1:crossoverPointInt), integerPart1(crossoverPointInt+1:end)];
 
