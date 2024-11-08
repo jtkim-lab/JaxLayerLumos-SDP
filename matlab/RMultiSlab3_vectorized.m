@@ -1,0 +1,126 @@
+function [rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, backLayer)
+% Calculates the reflection coefficients for TE and TM polarization
+% from a multilayer slab structure.
+%
+% Inputs:
+% theta_inc- Angle of incidence (degrees)
+% epsr     - Relative permittivity array for each slab
+% mur      - Relative permeability array for each slab
+% f        - Frequency (GHz)
+% d        - Thickness of each slab (mm)
+%
+% Outputs:
+% rSlab_TE_abs - Absolute value squared of the total reflection coefficient for TE polarization
+% rSlab_TM_abs - Absolute value squared of the total reflection coefficient for TM polarization
+
+% includes incident layer and last layer
+% add air to front and back
+d = [0 d_input 0];
+% Initialize epsr and mur for infinite medium and air
+epsr = [ones(1, length(f)); epsr; ones(1, length(f))];
+mur = [ones(1, length(f)); mur; ones(1, length(f))];
+% flipped the sides
+
+
+% Convert frequency from GHz to Hz
+f = f * 1e9;
+
+% Define constants: permittivity of free space (e0) and permeability of free space (u0)
+e0 = 8.854187817e-12; % Permittivity of free space [F/m]
+u0 = 1.256637061e-6;  % Permeability of free space [H/m]
+
+% Calculate absolute permittivity (eps) and permeability (mu) for each slab
+eps = epsr * e0; % Absolute permittivity for each slab
+mu = mur * u0;   % Absolute permeability for each slab
+
+% Convert slab thickness from mm to m
+d = d * 1e-3;
+numLayers = length(d);
+
+if nargin < 6
+  backLayer = 'PEC';
+end
+
+
+NK = conj(sqrt(epsr .* mur));
+%NK = sqrt(epsr .* mur);
+%NK(imag(NK)< 0) = conj(NK(imag(NK)< 0));
+eta = conj(sqrt(mur./epsr)); % impedance of materials
+%eta = sqrt(mu./eps);
+
+
+c = 299792458; % m/s
+k = 2 * pi./c * f.*NK;
+sin_theta = zeros(numLayers, length(f));
+sin_theta(1,:) = sin(theta_inc);
+for j = 1:numLayers-1
+  sin_theta(j+1,:) = (k(j,:).* sin_theta(j,:))./k(j+1,:); % sin(Theta) in slab i
+end
+
+%theta = asin(sin_theta);
+cos_theta = sqrt(1-sin_theta.^2);
+kz = k.*cos_theta;
+
+delta = d.'.*kz;
+
+Z_TE = eta./cos_theta;
+Z_TM = eta.*cos_theta;
+
+% switch(backLayer)
+%   case('PEC')
+%     Z_TE(end,:) = Inf;
+%     Z_TM(end,:) = Inf;
+%   case('air')
+%     % Do nothing as the last layer is already set to air
+%   otherwise
+%     error('back layer must be PEC or air')
+% end
+
+
+M_TE = repmat(eye(2), 1, 1, length(f));
+M_TM = repmat(eye(2), 1, 1, length(f));
+for j = 1:numLayers-1
+  
+  r_jk_TE = (Z_TE(j+1,:)- Z_TE(j,:))./(Z_TE(j+1,:)+ Z_TE(j,:));
+  t_jk_TE = (2*Z_TE(j+1,:))./(Z_TE(j+1,:)+ Z_TE(j,:));
+
+  r_jk_TM = (Z_TM(j+1,:)- Z_TM(j,:))./(Z_TM(j+1,:)+ Z_TM(j,:));
+  t_jk_TM = (2*Z_TM(j+1,:))./(Z_TM(j+1,:)+ Z_TM(j,:));
+
+  if strcmp(backLayer,'PEC') && j == numLayers -1
+    r_jk_TE = -ones(1, length(f));
+    t_jk_TE = ones(1, length(f)); % Avoid division by zero
+    r_jk_TM = -ones(1, length(f));
+    t_jk_TM = ones(1, length(f));
+  end
+
+  D_jk_TE = repmat(eye(2), 1, 1,length(f));
+  D_jk_TE(1,2,:) = r_jk_TE;
+  D_jk_TE(2,1,:) = r_jk_TE;
+  D_jk_TE = D_jk_TE./reshape(t_jk_TE, 1, 1, []);
+
+  D_jk_TM = repmat(eye(2), 1, 1,length(f));
+  D_jk_TM(1,2,:) = r_jk_TM;
+  D_jk_TM(2,1,:) = r_jk_TM;
+  D_jk_TM = D_jk_TM./reshape(t_jk_TM, 1, 1, []);
+
+  P = zeros(2, 2, length(f));
+  P(1,1,:) = exp(-1j*delta(j+1,:));
+  P(2,2,:) = exp(1j*delta(j+1,:));
+ 
+  M_TE = pagemtimes(M_TE, pagemtimes(D_jk_TE,P));
+  M_TM = pagemtimes(M_TM, pagemtimes(D_jk_TM,P));
+end
+
+r_TE_i = squeeze(M_TE(2,1,:)./M_TE(1,1,:));
+t_TE_i = squeeze(1./M_TE(1,1,:));
+
+r_TM_i = squeeze(M_TM(2,1,:)./M_TM(1,1,:));
+t_TM_i = squeeze(1./M_TM(1,1,:));
+
+
+rSlab_TE_abs = abs(r_TE_i).^2;
+tSlab_TE_abs = abs(t_TE_i).^2;
+
+rSlab_TM_abs = abs(r_TM_i).^2;
+tSlab_TM_abs = abs(t_TM_i).^2;
