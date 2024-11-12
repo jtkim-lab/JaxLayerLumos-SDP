@@ -13,15 +13,16 @@ f = 0.1:0.01:1;
 % assumes pefect electrical conducting layer is leftmost layer
 
 % xValues: Thickness of the films [mm]
-%thicknessMM = [1.9863 1.9883 1.4878 0.8485 0.7742];
+thicknessMM = [1.9863 1.9883 1.4878 0.8485 0.7742];
 % %nVar = 5; % Number of material layers
 % % yValues: Selection of material indices for each layer
-%materialInd = [4.0000 4.0000 7.0000 16.0000 11.0000];
+materialInd = [4.0000 4.0000 7.0000 16.0000 11.0000];
 %thicknessMM = [2.0];
 
-thicknessMM = [3.8499 1.2553 1.0716];
-materialInd =[4, 7, 15];
-%materialInd = [6.0];
+%thicknessMM = [3.8499 1.2553 1.0716];
+%materialInd =[4, 7, 15];
+%thicknessMM = 2.0;
+%materialInd = [3.0];
 
 % thicknessMM = [0.486 1.446 1.272 0.885 1.155];
 % materialInd = [8 7 6 2 1];

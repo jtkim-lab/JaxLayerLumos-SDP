@@ -1,4 +1,4 @@
-function [rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, backLayer)
+function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, backLayer)
 % Calculates the reflection coefficients for TE and TM polarization
 % from a multilayer slab structure.
 %
@@ -24,14 +24,6 @@ mur = [ones(1, length(f)); mur; ones(1, length(f))];
 
 % Convert frequency from GHz to Hz
 f = f * 1e9;
-
-% Define constants: permittivity of free space (e0) and permeability of free space (u0)
-e0 = 8.854187817e-12; % Permittivity of free space [F/m]
-u0 = 1.256637061e-6;  % Permeability of free space [H/m]
-
-% Calculate absolute permittivity (eps) and permeability (mu) for each slab
-eps = epsr * e0; % Absolute permittivity for each slab
-mu = mur * u0;   % Absolute permeability for each slab
 
 % Convert slab thickness from mm to m
 d = d * 1e-3;

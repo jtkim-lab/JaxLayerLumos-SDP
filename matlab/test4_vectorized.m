@@ -12,22 +12,27 @@ f = 0.1:0.01:1;
 % radar is coming from the right
 % assumes pefect electrical conducting layer is leftmost layer
 
+theta_inc = deg2rad(0);
 % xValues: Thickness of the films [mm]
-%thicknessMM = [1.9863 1.9883 1.4878 0.8485 0.7742];
+thicknessMM = fliplr([1.9863 1.9883 1.4878 0.8485 0.7742]);
 % %nVar = 5; % Number of material layers
 % % yValues: Selection of material indices for each layer
-%materialInd = [4.0000 4.0000 7.0000 16.0000 11.0000];
-
-%thicknessMM = [2.0 1.0 1.0];
+materialInd = fliplr([4.0000 4.0000 7.0000 16.0000 11.0000]);
+% thicknessMM = [2.0 1.0 1.0];
 % materialInd = [6.0 1.0 6.0];
 
+% thicknessMM = [2.0 1.0 1.0];
+% materialInd = [6.0 1.0 6.0];
 
-thicknessMM = [2.0];
-materialInd = [6.0];
+% thicknessMM = [3.8499 1.2553 1.0716];
+% materialInd =[4, 7, 15];
+
+% thicknessMM = [2.0];
+% materialInd =[3];
 
 
 % thicknessMM = [0.486 1.446 1.272 0.885 1.155];
-
+% materialInd = [8 7 6 2 1];
 backLayer = 'PEC';
 
 
@@ -37,12 +42,11 @@ numFrequencies = length(f);
 % materialInd = [6.0];
 
 nLayers = length(thicknessMM);
-theta_inc = deg2rad(0);
 [epsr, mur, M_epsr, M_mur] = initialize_epsr_mur2(materialInd, f);
 
 % Reflection coefficient arrays
 % Vectorized call to the RMultiSlab function
-[rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab2_vectorized(theta_inc, epsr, mur, f, thicknessMM, backLayer);
+[rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, thicknessMM, backLayer);
 %[rSlab_TE_abs, rSlab_TM_abs] = RMultiSlab_vectorized(nLayers, 0, epsr, mur, f, thicknessMM, backLayer);
 a = rSlab_TE_abs;
 rSlab_TE_db = 10 .* log10(a);

@@ -26,7 +26,7 @@ wavelength = c ./ f_Hz;
 minThickness = 0.1; % Minimum thickness (mm)
 maxThickness = 5;   % Maximum thickness (mm)
 
-numLayers = 4;
+numLayers = 3;
 numMaterials = 16;
 
 % Material options for each layer (indices corresponding to material properties in M_epsr and M_mur)
@@ -148,7 +148,7 @@ ylabel('Fitness Function')
 [row, col] = ind2sub(size(fitness), linearIndex);
 bestStructure = population(row,:,col);
 
-thicknessFormat = repmat('%.4f mm, ', 1, numLayers);
+thicknessFormat = repmat('%.4f, ', 1, numLayers);
 thicknessFormat = thicknessFormat(1:end-2); % Remove trailing comma and space
 
 materialFormat = repmat('%d, ', 1, numLayers);
@@ -168,6 +168,8 @@ mat_selection = bestStructure(numLayers+1:2*numLayers);
 %thickness = [3.7153 1.8364 0.9869];
 %mat_selction = [4 6 15];
 %Best Materials: 4, 6, 15
+% mat_selction = [4 8 15];
+% thickness = [3.7026, 1.4695, 1.3667];
 [epsr, mur, M_epsr, M_mur] = initialize_epsr_mur(mat_selection, f);
 
 [rSlab_TE_abs, ~] = RMultiSlab_vectorized(numLayers, theta_inc, epsr, mur, f, thickness, backLayer);
@@ -175,4 +177,5 @@ reflectionBest = rSlab_TE_abs(numLayers+1,:); % Reflection for three layers plus
 
 figure(2);
 clf;
-plot(f, 10 * log10(reflectionBest));
+semilogx(f, 10 * log10(reflectionBest));
+xlabel('frequency (GHz)');
