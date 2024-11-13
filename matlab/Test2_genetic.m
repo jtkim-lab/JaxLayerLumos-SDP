@@ -17,7 +17,6 @@ c = 3e8;
 M_epsr = zeros(16, numFrequencies);
 M_mur = zeros(16, numFrequencies);
 
-
 % Arrays for relative permittivity and permeability
 M_epsr = zeros(16, numFrequencies);
 M_mur = zeros(16, numFrequencies);
@@ -50,7 +49,6 @@ M_mur(14, :) = (30 * (2.5^2)) ./ (f.^2 + 2.5^2) - 1i * (30 * 2.5 * f) ./ (f.^2 +
 M_mur(15, :) = (30 * (2^2)) ./ (f.^2 + 2^2) - 1i * (30 * 2 * f) ./ (f.^2 + 2^2);
 M_mur(16, :) = (25 * (3.5^2)) ./ (f.^2 + 3.5^2) - 1i * (25 * 3.5 * f) ./ (f.^2 + 3.5^2);
 
-
 % Genetic Algorithm Setup
 nVar = 3; % Number of layers 
 
@@ -66,13 +64,12 @@ ub = [repmat(thickness_upper_bound, 1, nVar), repmat(material_upper_bound, 1, nV
 
 % Set genetic algorithm options with a mutation function
 options = optimoptions('ga', ...
-    'PopulationSize', 300, ... % Increase population size for better exploration
-    'MaxGenerations', 200, ... % Increase number of generations
-    'CrossoverFraction', 0.7, ... % Fraction of population involved in crossover
+    'PopulationSize', 1000, ... % Increase population size for better exploration
+    'MaxGenerations', 20, ... % Increase number of generations
+    'CrossoverFraction', 0.2, ... % Fraction of population involved in crossover
     'MutationFcn', @mutationadaptfeasible, ...
-    'EliteCount', 2, ... 
+    'EliteCount', 3, ... 
     'PlotFcn', @gaplotbestf);
-
 
 % Run the genetic algorithm to find optimal parameters
 [opt_params, fval] = ga(@(params) reflectionObjective(params, f, M_epsr, M_mur), 2*nVar, [], [], [], [], lb, ub, [], options);
@@ -88,6 +85,20 @@ disp('Optimal Material Selection:');
 disp(opt_material_selection);
 disp('Minimum Reflection in dB:');
 disp(fval);
+
+% Save the structure if reflection is below -30 dB
+if fval < -30
+    fileID = fopen('Optimized_Structure.txt', 'a'); % Open in append mode
+    fprintf(fileID, 'Optimal Thickness (mm):\n');
+    fprintf(fileID, '%f\n', opt_thickness);
+    fprintf(fileID, '\nOptimal Material Selection:\n');
+    fprintf(fileID, '%d\n', opt_material_selection);
+    fprintf(fileID, '\nMinimum Reflection in dB:\n');
+    fprintf(fileID, '%f\n', fval);
+    fprintf(fileID, '\n------------------------------\n'); % Separator for readability
+    fclose(fileID);
+    disp('Structure appended to Optimized_Structure.txt');
+end
 
 % Use the optimal parameters to compute and plot reflection
 
@@ -115,7 +126,6 @@ xlabel('Frequency (GHz)')
 ylabel('Reflection in dB')
 grid on
 hold on
-
 
 %%
 function reflection_db = reflectionObjective(params, f, M_epsr, M_mur)
