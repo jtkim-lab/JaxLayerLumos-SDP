@@ -27,8 +27,8 @@ f = linspace(8,12);
 thicknessMM = fliplr([1.781920 3.503729 3.473454]);
 materialInd = fliplr([6.000000 6.000000 8.000000]);
 
-thicknessMM = [3.473454 1.781920+3.503729];
-materialInd = [8 6];
+thicknessMM = fliplr([1.781920 3.503729 3.473454]);
+materialInd = fliplr([8 6]);
 
 % % %nLayers = 3;
 

@@ -35,9 +35,14 @@ def stackrt_base(n_i, d, wvl_i, theta_k):
             * cos_theta_k
             / (n_current * cos_theta_k + n_next * cos_theta_t)
         )
-        r_jk_TM = (n_next * cos_theta_k - n_current * cos_theta_t) / (
-            n_next * cos_theta_k + n_current * cos_theta_t
+        #r_jk_TM = (n_next * cos_theta_k - n_current * cos_theta_t) / (
+        #    n_next * cos_theta_k + n_current * cos_theta_t
+        #)
+
+        r_jk_TM = (n_current * cos_theta_t - n_next * cos_theta_k) / (
+                n_next * cos_theta_k + n_current * cos_theta_t
         )
+
         t_jk_TM = (
             2
             * n_current

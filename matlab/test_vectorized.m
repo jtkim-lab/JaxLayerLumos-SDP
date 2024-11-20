@@ -6,18 +6,27 @@ clc
 % in dB versus frequency for a multi-slab configuration.
 
 % Frequency range in GHz (from 0.1 to 1 GHz in steps of 0.01 GHz)
-f = 0.1:0.01:1;
+
 %f = 1;
 
 % radar is coming from the right
 % assumes pefect electrical conducting layer is leftmost layer
 
 % xValues: Thickness of the films [mm]
-thicknessMM = [1.9863 1.9883 1.4878 0.8485 0.7742];
-% %nVar = 5; % Number of material layers
-% % yValues: Selection of material indices for each layer
-materialInd = [4.0000 4.0000 7.0000 16.0000 11.0000];
+f = 0.1:0.01:1;
+% thicknessMM = [1.9863 1.9883 1.4878 0.8485 0.7742];
+% materialInd = [4.0000 4.0000 7.0000 16.0000 11.0000];
+
+thicknessMM = [1.155 0.885 1.272 1.446 0.486];
+materialInd = [2 11 5 6 16];
+
+
+% f = linspace(8,12)
+% thicknessMM = flipud([1.781920 3.503729 3.473454]);
+% materialInd = flipud([6.000000 6.000000 8.000000]);
+% nLayers = 3;
 %thicknessMM = [2.0];
+
 
 %thicknessMM = [3.8499 1.2553 1.0716];
 %materialInd =[4, 7, 15];

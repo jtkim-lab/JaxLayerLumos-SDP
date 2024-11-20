@@ -172,6 +172,9 @@ mat_selection = bestStructure(numLayers+1:2*numLayers);
 % mat_selction = [4 8 15];
 % thickness = [3.7026, 1.4695, 1.3667];
 
+thickness = [3.1551    1.4862    0.4740];
+materialInd = [12 7 16]
+
 [epsr, mur, M_epsr, M_mur] = initialize_epsr_mur(mat_selection, f);
 
 [rSlab_TE_abs, ~] = RMultiSlab_vectorized(numLayers, theta_inc, epsr, mur, f, thickness, backLayer);

@@ -19,7 +19,7 @@ d = [0 d_input 0];
 % Initialize epsr and mur for infinite medium and air
 epsr = [ones(1, length(f)); epsr; ones(1, length(f))];
 mur = [ones(1, length(f)); mur; ones(1, length(f))];
-% flipped the sides
+% flipped the sidesf
 
 
 % Convert frequency from GHz to Hz
@@ -33,11 +33,17 @@ if nargin < 6
   backLayer = 'PEC';
 end
 
-
 NK = conj(sqrt(epsr .* mur));
+% if any(imag(NK(:)) < 0)
+%   NK(imag(NK) < 0) = conj(NK(imag(NK) < 0));
+% end
+%NK = conj(sqrt(epsr .* mur));
 %NK = sqrt(epsr .* mur);
 %NK(imag(NK)< 0) = conj(NK(imag(NK)< 0));
 eta = conj(sqrt(mur./epsr)); % impedance of materials
+%if any(imag(eta(:)) > 0)
+  %eta(imag(eta) > 0) = conj(eta(imag(eta) > 0));
+%end
 %eta = sqrt(mu./eps);
 
 
