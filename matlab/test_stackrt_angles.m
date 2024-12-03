@@ -13,7 +13,8 @@ n_k_TiO2 = n_TiO2 + 1j*k_TiO2;
 
 d_TiO2 = 2e-8; % in m
 
-theta_inc = deg2rad(linspace(0, 89, 3));
+%theta_inc = deg2rad(linspace(0, 89, 3));
+theta_inc = deg2rad(44.5);
 
 n_stack = [n_k_TiO2];
 %d_stack = [d_air, d_Ag, d_air];

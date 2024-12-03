@@ -117,8 +117,8 @@ r_TM_i = squeeze(M_TM(2,1,:)./M_TM(1,1,:));
 t_TM_i = squeeze(1./M_TM(1,1,:));
 
 
-rSlab_TE_abs = abs(r_TE_i).^2;
-tSlab_TE_abs = abs(t_TE_i).^2.*(NK(end,:)./NK(1,:))';
+rSlab_TE_abs = abs(r_TE_i).^2.*;
+tSlab_TE_abs = abs(t_TE_i).^2;
 
 rSlab_TM_abs = abs(r_TM_i).^2;
-tSlab_TM_abs = abs(t_TM_i).^2.*(NK(end,:)./NK(1,:))';
+tSlab_TM_abs = abs(t_TM_i).^2;
