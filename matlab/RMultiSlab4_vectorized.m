@@ -1,4 +1,4 @@
-function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, is_backLayer_PEC)
+function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, materials)
 % Calculates the reflection coefficients for TE and TM polarization
 % from a multilayer slab structure.
 %
@@ -15,10 +15,10 @@ function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coef
 
 % includes incident layer and last layer
 % add air to front and back
-d = [0 d_input];
+% d = [0 d_input];
 % Initialize epsr and mur for infinite medium and air
-epsr = [ones(1, length(f)); epsr];
-mur = [ones(1, length(f)); mur];
+%epsr = [ones(1,epsr];
+%mur = [ones(1, length(f)); mur];
 % flipped the sidesf
 
 
@@ -26,12 +26,8 @@ mur = [ones(1, length(f)); mur];
 f = f * 1e9;
 
 % Convert slab thickness from mm to m
-d = d * 1e-3;
+d = d_input * 1e-3;
 numLayers = length(d);
-
-if nargin < 6
-  is_backLayer_PEC = true;
-end
 
 NK = conj(sqrt(epsr .* mur));
 
@@ -93,7 +89,7 @@ for j = 1:numLayers-1
   r_jk_TM = (Z_TM(j+1,:)- Z_TM(j,:))./(Z_TM(j+1,:)+ Z_TM(j,:));
   t_jk_TM = (2*Z_TM(j+1,:))./(Z_TM(j+1,:)+ Z_TM(j,:));
 
-  if is_backLayer_PEC && j == numLayers -1
+  if j == numLayers -1 && strcmp(materials{end},'PEC')
     r_jk_TE = -ones(1, length(f));
     t_jk_TE = ones(1, length(f)); % Avoid division by zero
     r_jk_TM = -ones(1, length(f));
@@ -127,9 +123,9 @@ coeff_TM = zeros(2, length(f), numLayers);
 coeff_TE(:, :, numLayers) = repmat([1;0], 1, length(f));
 coeff_TM(:, :, numLayers) = repmat([1;0], 1, length(f));
 
-for index = numLayers-1:-1:2
-  coeff_TE(:, index) = M_TE_all(:,:,index,:)*coeff_TE(:, numLayers);
-  coeff_TM(:, index) = M_TE_all(:,:,index,:)*coeff_TM(:, numLayers);
+for index = numLayers-1:-1:1
+  coeff_TE(:, index) = M_TE_all(:,:,index,:)*coeff_TE(:, :, numLayers);
+  coeff_TM(:, index) = M_TE_all(:,:,index,:)*coeff_TM(:, :, numLayers);
 end
 
 r_TE_i = squeeze(M_TE(2,1,:)./M_TE(1,1,:));
