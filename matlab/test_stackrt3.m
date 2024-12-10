@@ -10,7 +10,7 @@ wavelengths = linspace(300e-9, 900e-9, 3);
 frequencies = convert_wavelengths_to_frequencies(wavelengths); % GHz
 
 materials = {'air', 'cSi', 'air'};
-thickness_materials = [0, 0.9857, 0]; %*1e-9; % in m
+thickness_materials = [0, 1, 0]*1e-6; %*1e-9; % in m
 
 %n_air = ones(size(frequencies));
 %n_stack = n_air;
@@ -30,7 +30,9 @@ end
 
 epsr = conj(n_stack.^2);
 mur = ones(size(epsr));
-[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, materials)
+%[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, materials)
+
+[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz] = RMultiSlab4_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, materials);
 
 
 

@@ -31,7 +31,10 @@ tSlab_TE_abs = zeros(length(theta_inc), length(frequencies));
 tSlab_TM_abs = zeros(length(theta_inc), length(frequencies));
 for i = 1:length(theta_inc)
   [rSlab_TE_abs(i,:), rSlab_TM_abs(i,:), tSlab_TE_abs(i,:), tSlab_TM_abs(i,:)] = RMultiSlab3_vectorized(theta_inc(i), epsr, mur, frequencies./1e9, thicknessMM, backLayer);
+  [rSlab_TE_abs4(i,:), rSlab_TM_abs4(i,:), tSlab_TE_abs4(i,:), tSlab_TM_abs4(i,:)] = RMultiSlab4_vectorized(theta_inc(i), epsr, mur, frequencies./1e9, thicknessMM, backLayer);
 end
+
+
 
 R_avg = (rSlab_TE_abs + rSlab_TM_abs)/2;
 T_avg = (tSlab_TE_abs + tSlab_TM_abs)/2;

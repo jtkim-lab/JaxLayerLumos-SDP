@@ -124,8 +124,17 @@ coeff_TE(:, :, numLayers) = repmat([1;0], 1, length(f));
 coeff_TM(:, :, numLayers) = repmat([1;0], 1, length(f));
 
 for index = numLayers-1:-1:1
-  coeff_TE(:, index) = M_TE_all(:,:,index,:)*coeff_TE(:, :, numLayers);
-  coeff_TM(:, index) = M_TE_all(:,:,index,:)*coeff_TM(:, :, numLayers);
+  A_TE = squeeze(M_TE_all(:,:,index,:)); % A_TE: (2, 2, length(f))
+  B_TE = reshape(coeff_TE(:,:,index+1), [2, 1, length(f)]); % B_TE: (2, 1, length(f))
+  C_TE = pagemtimes(A_TE, B_TE); % C_TE: (2, 1, length(f))
+  coeff_TE(:,:,index) = reshape(C_TE, [2, length(f)]);
+
+  % TM calculation (assuming M_TM_all is defined similarly)
+  A_TM = squeeze(M_TM_all(:,:,index,:)); % A_TM: (2, 2, length(f))
+  B_TM = reshape(coeff_TM(:,:,index+1), [2, 1, length(f)]); % B_TM: (2, 1, length(f))
+  C_TM = pagemtimes(A_TM, B_TM); % C_TM: (2, 1, length(f))
+  coeff_TM(:,:,index) = reshape(C_TM, [2, length(f)]);
+
 end
 
 r_TE_i = squeeze(M_TE(2,1,:)./M_TE(1,1,:));
@@ -136,7 +145,7 @@ t_TM_i = squeeze(1./M_TM(1,1,:));
 
 
 rSlab_TE_abs = abs(r_TE_i).^2;
-tSlab_TE_abs = abs(t_TE_i).^2.*real(NK(end,:)*cos_theta(end,:)./(NK(1,:)*cos_theta(1,:)))';
+tSlab_TE_abs = abs(t_TE_i).^2.*real(NK(end,:).*cos_theta(end,:)./(NK(1,:).*cos_theta(1,:)))';
 
 rSlab_TM_abs = abs(r_TM_i).^2;
-tSlab_TM_abs = abs(t_TM_i).^2.*real(NK(end,:)*cos_theta(1,:)./(NK(1,:)*cos_theta(end,:)))';
+tSlab_TM_abs = abs(t_TM_i).^2.*real(NK(end,:).*cos_theta(1,:)./(NK(1,:).*cos_theta(end,:)))';

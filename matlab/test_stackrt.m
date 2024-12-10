@@ -23,9 +23,22 @@ theta_inc = 0;
 
 backLayer = 'air';
 
+% epsr = conj(n_stack.^2);
+% mur = ones(size(epsr));
+% [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, backLayer);
+
+
+materials = {"air", "Ag", "air"};
+for i = 1:length(materials)
+  [n, k] = interpolate_material(materials{i}, frequencies);
+  n_k = n + 1j*k;
+  n_stack(i,:) = n_k;
+end
+
 epsr = conj(n_stack.^2);
 mur = ones(size(epsr));
-[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, backLayer);
 
+thicknessMM = [0 thicknessMM 0];
 
+[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz] = RMultiSlab4_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, materials)
 
