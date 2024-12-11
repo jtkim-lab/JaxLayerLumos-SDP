@@ -1,0 +1,85 @@
+clear all
+close all
+clc
+
+% This script calculates and plots the total reflection for a TE wave 
+% in dB versus frequency for a multi-slab configuration.
+
+wavelengths = linspace(3000e-9, 14000e-9, 1000); 
+% wavelengths = 300e-9;
+frequencies = convert_wavelengths_to_frequencies(wavelengths); % GHz
+
+materials = {'air', 'NyCo'};
+thickness_materials = [0, 0]; % in m
+
+% materials = {"air", "Ag", "air"};
+for i = 1:length(materials)
+  [n, k] = interpolate_material(materials{i}, frequencies);
+  n_k = n + 1j*k;
+  n_stack(i,:) = n_k;
+end
+
+theta_inc = 0;
+
+epsr = conj(n_stack.^2);
+mur = ones(size(epsr));
+
+thicknessMM = thickness_materials*1000;
+%d_stack = [d_air, thickness_materials, d_air];
+
+[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz] = RMultiSlab4_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, materials);
+
+
+materials2 = {'air', 'Ag2', 'NyCo'};
+thickness_materials2 = [0, 1e-6, 0]; % in m
+
+for i = 1:length(materials2)
+  [n2, k2] = interpolate_material(materials2{i}, frequencies);
+  n_k2 = n2 + 1j*k2;
+  n_stack2(i,:) = n_k2;
+end
+
+epsr2 = conj(n_stack2.^2);
+mur2 = ones(size(epsr2));
+thicknessMM2 = thickness_materials2*1000;
+[rSlab_TE_abs2, rSlab_TM_abs2, tSlab_TE_abs2, tSlab_TM_abs2, coeff_TE, coeff_TM, kz] = RMultiSlab4_vectorized(theta_inc, epsr2, mur2, frequencies./1e9, thicknessMM2, materials2);
+
+
+
+%EVector = Photon.convert_wavelength_to_energy(wavelengths*1e9);
+
+T_body = 310;
+[Ebody] = calc_I_lambda(wavelengths, T_body);
+T_background = 298;
+b = 2.898e3;
+lambda_max_body = b/T_body/1e6
+[E_max_body] = calc_I_lambda(lambda_max_body, T_body);
+
+
+
+[Ebackground] = calc_I_lambda(wavelengths, T_background);
+
+lambda_max_background = b/T_background/1e6
+[E_max_background] = calc_I_lambda(lambda_max_background, T_background);
+
+obj_function = trapz(wavelengths, Ebody*(1-rSlab_TE_abs) - Ebackground)
+obj_function2 = trapz(wavelengths, Ebody*(1-rSlab_TE_abs2) - Ebackground)
+
+
+%REbackground = (2 * h* c^2)./ (wavelengths.^5) ./ (exp((h * c) ./ (wavelengths .* k * T_background)) - 1)
+
+figure(1);
+clf;
+%plot(wavelengths*1e9, b)
+
+plot(wavelengths, Ebody, 'b')
+hold on;
+plot(lambda_max_body, E_max_body, 'bo')
+hold on;
+plot(wavelengths, Ebackground, 'g')
+plot(lambda_max_background, E_max_background, 'go')
+%backLayer = 'Air'
+%[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, backLayer)
+
+
+

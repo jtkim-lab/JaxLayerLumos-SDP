@@ -1,5 +1,6 @@
 {
     "Ag": "materials/Ag-Rakic-LD-1998.csv",
+    "Ag2": "materials/Ag-Ciesielski-2017.csv",
     "Air": "materials/Air-Peck-1972.csv",
     "Al2O3": "materials/Al2O3-Querry-1985.csv",
     "Al": "materials/Al-Rakic-LD-1998.csv",
@@ -19,6 +20,7 @@
     "Mg": "materials/Mg-Palm-2018.csv",
     "Mn": "materials/Mn-Querry-1987.csv",
     "Ni": "materials/Ni-Rakic-LD-1998.csv",
+    "NyCo": "materials/NyCo.csv",
     "Pb": "materials/Pb-Werner-DFT-2009.csv",
     "Pd": "materials/Pd-Rakic-LD-1998.csv",
     "Pt": "materials/Pt-Rakic-LD-1998.csv",
