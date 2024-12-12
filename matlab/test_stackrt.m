@@ -19,7 +19,8 @@ n_stack = [n_k_Ag];
 %d_stack = [d_air, d_Ag, d_air];
 thicknessMM = d_Ag*1000;
 
-theta_inc = 0;
+%theta_inc = 0;
+
 
 backLayer = 'air';
 

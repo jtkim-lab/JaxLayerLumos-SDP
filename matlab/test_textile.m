@@ -52,18 +52,18 @@ T_body = 310;
 [Ebody] = calc_I_lambda(wavelengths, T_body);
 T_background = 298;
 b = 2.898e3;
-lambda_max_body = b/T_body/1e6
-[E_max_body] = calc_I_lambda(lambda_max_body, T_body);
+% lambda_max_body = b/T_body/1e6
+% [E_max_body] = calc_I_lambda(lambda_max_body, T_body);
 
 
 
 [Ebackground] = calc_I_lambda(wavelengths, T_background);
 
-lambda_max_background = b/T_background/1e6
-[E_max_background] = calc_I_lambda(lambda_max_background, T_background);
+% lambda_max_background = b/T_background/1e6
+% [E_max_background] = calc_I_lambda(lambda_max_background, T_background);
 
-obj_function = trapz(wavelengths, Ebody*(1-rSlab_TE_abs) - Ebackground)
-obj_function2 = trapz(wavelengths, Ebody*(1-rSlab_TE_abs2) - Ebackground)
+obj_function = trapz(wavelengths, (1-rSlab_TE_abs').*(Ebody - Ebackground).^2)
+obj_function2 = trapz(wavelengths, (1-rSlab_TE_abs2').*(Ebody - Ebackground).^2)
 
 
 %REbackground = (2 * h* c^2)./ (wavelengths.^5) ./ (exp((h * c) ./ (wavelengths .* k * T_background)) - 1)
@@ -74,10 +74,13 @@ clf;
 
 plot(wavelengths, Ebody, 'b')
 hold on;
-plot(lambda_max_body, E_max_body, 'bo')
+plot(wavelengths, Ebody.*(1-rSlab_TE_abs'), 'r')
+plot(wavelengths, Ebody.*(1-rSlab_TE_abs2'), 'c')
+
+%plot(lambda_max_body, E_max_body, 'bo')
 hold on;
 plot(wavelengths, Ebackground, 'g')
-plot(lambda_max_background, E_max_background, 'go')
+%plot(lambda_max_background, E_max_background, 'go')
 %backLayer = 'Air'
 %[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, backLayer)
 

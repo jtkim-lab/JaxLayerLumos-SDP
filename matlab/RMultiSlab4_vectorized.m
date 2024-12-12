@@ -1,4 +1,4 @@
-function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz] = RMultiSlab3_vectorized(theta_inc, epsr, mur, f, d_input, materials)
+function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz, Z_TE, Z_TM] = RMultiSlab4_vectorized(theta_inc, epsr, mur, f, d_input, materials)
 % Calculates the reflection coefficients for TE and TM polarization
 % from a multilayer slab structure.
 %
@@ -81,6 +81,9 @@ M_TM = repmat(eye(2), 1, 1, length(f));
 M_TE_all = zeros(2, 2, numLayers, length(f));
 M_TM_all = zeros(2, 2, numLayers, length(f));
 
+coeff_TE = zeros(2, length(f), numLayers);
+coeff_TM = zeros(2, length(f), numLayers);
+
 for j = 1:numLayers-1
   
   r_jk_TE = (Z_TE(j+1,:)- Z_TE(j,:))./(Z_TE(j+1,:)+ Z_TE(j,:));
@@ -106,22 +109,53 @@ for j = 1:numLayers-1
   D_jk_TM(2,1,:) = r_jk_TM;
   D_jk_TM = D_jk_TM./reshape(t_jk_TM, 1, 1, []);
 
+  % Must save P and then next one;
   P = zeros(2, 2, length(f));
   P(1,1,:) = exp(-1j*delta(j+1,:));
   P(2,2,:) = exp(1j*delta(j+1,:));
- 
+
+  Pnow = zeros(2, 2, length(f));
+  Pnow(1,1,:) = exp(-1j*delta(j,:));
+  Pnow(2,2,:) = exp(1j*delta(j,:));
+
+  M_TE_all(:, :, j, :) = pagemtimes(Pnow, D_jk_TE);
+  M_TM_all(:, :, j, :) = pagemtimes(Pnow, D_jk_TM);
+
+  %M_TE2 = M_TE;
+
   M_TE = pagemtimes(M_TE, pagemtimes(D_jk_TE,P));
   M_TM = pagemtimes(M_TM, pagemtimes(D_jk_TM,P));
 
-  M_TE_all(:,:,j,:) = M_TE;
-  M_TM_all(:,:,j,:) = M_TM;
-end
+  % M_current_TM = pagemtimes(D_jk_TM,P);
+  % M_current_TE = pagemtimes(D_jk_TE,P);
+  % 
+  % M_TE = pagemtimes(M_TE, M_current_TE);
+  % M_TM = pagemtimes(M_TM, M_current_TM);
+  % 
+  % M_TE = pagemtimes(M_TE, pagemtimes(D_jk_TE,P));
+  % M_TM = pagemtimes(M_TM, pagemtimes(D_jk_TE,P));
+  % 
+  % % M_TM = pagemtimes(M_TM, M_current_TM);
+  % % 
+  % % M_current_TE = pagemtimes(D_jk_TE,P);
+  % 
+  % 
 
+end
+% 
+% result = M_TE_all(:, :, 1);
+% for k = 2:numLayers - 1
+%   result = result * M_TE_all(:, :, k);
+% end
+% 
+% 
 coeff_TE = zeros(2, length(f), numLayers);
 coeff_TM = zeros(2, length(f), numLayers);
-
+% % 
 coeff_TE(:, :, numLayers) = repmat([1;0], 1, length(f));
 coeff_TM(:, :, numLayers) = repmat([1;0], 1, length(f));
+% % 
+
 
 for index = numLayers-1:-1:1
   A_TE = squeeze(M_TE_all(:,:,index,:)); % A_TE: (2, 2, length(f))
