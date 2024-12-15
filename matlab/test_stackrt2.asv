@@ -32,5 +32,4 @@ thicknessMM = thickness_materials*1000;
 %[rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs] = RMultiSlab3_vectorized(theta_inc, epsr, mur, frequencies./1e9, thicknessMM, backLayer)
 
 
-rSlab_TE_abs + tSlab_TE_abs
-rSlab_TM_abs + tSlab_TM_abs
+rSlab_T

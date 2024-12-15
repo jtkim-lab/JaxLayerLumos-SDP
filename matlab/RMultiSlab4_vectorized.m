@@ -1,4 +1,4 @@
-function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz, Z_TE, Z_TM] = RMultiSlab4_vectorized(theta_inc, epsr, mur, f, d_input, materials)
+function [rSlab_TE_abs, rSlab_TM_abs, tSlab_TE_abs, tSlab_TM_abs, coeff_TE, coeff_TM, kz, cos_theta] = RMultiSlab4_vectorized(theta_inc, epsr, mur, f, d_input, materials)
 % Calculates the reflection coefficients for TE and TM polarization
 % from a multilayer slab structure.
 %

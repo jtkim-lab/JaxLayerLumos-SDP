@@ -2,7 +2,7 @@ function [n_material,k_material] = interpolate_material(material,frequencies)
 
 assert(isvector(frequencies));
 
-if strmatch(material, 'air')
+if strcmpi(material, 'air')
   n_material = ones(1, length(frequencies));
   k_material = zeros(1, length(frequencies));
 else
